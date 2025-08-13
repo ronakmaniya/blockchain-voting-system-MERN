@@ -1,4 +1,3 @@
-// scripts/deploy.js
 require("dotenv").config();
 const { ethers } = require("hardhat");
 const fs = require("fs");
@@ -18,10 +17,29 @@ async function main() {
   const contractAddress = await voting.getAddress();
   console.log(`✅ Voting contract deployed at: ${contractAddress}`);
 
-  // Save address to file
-  const filePath = path.join(__dirname, "../deployedAddress.json");
-  fs.writeFileSync(filePath, JSON.stringify({ address: contractAddress }, null, 2));
-  console.log(`📂 Contract address saved to ${filePath}`);
+  // --- 1️⃣ Save deployed address in blockchain folder ---
+  const addressPath = path.join(__dirname, "../deployedAddress.json");
+  fs.writeFileSync(addressPath, JSON.stringify({ address: contractAddress }, null, 2));
+  console.log(`📂 Contract address saved to ${addressPath}`);
+
+  // --- 2️⃣ Copy ABI to backend/abi folder ---
+  const abiSourcePath = path.join(
+    __dirname,
+    "../artifacts/contracts/Voting.sol/Voting.json"
+  );
+  const abiDestPath = path.join(
+    __dirname,
+    "../../backend/abi/Voting.json"
+  );
+
+  // Ensure backend/abi folder exists
+  const abiDestDir = path.dirname(abiDestPath);
+  if (!fs.existsSync(abiDestDir)) {
+    fs.mkdirSync(abiDestDir, { recursive: true });
+  }
+
+  fs.copyFileSync(abiSourcePath, abiDestPath);
+  console.log(`📄 ABI copied to ${abiDestPath}`);
 }
 
 main()
