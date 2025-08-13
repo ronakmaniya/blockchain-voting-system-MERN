@@ -1,6 +1,5 @@
 node_modules
 .env
-deployedAddress.json
 
 # Hardhat files
 /cache
