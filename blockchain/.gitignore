@@ -1,6 +1,9 @@
 node_modules
 .env
 
+# Ignore deployed contract address file
+deployedAddress.json
+
 # Hardhat files
 /cache
 /artifacts
