@@ -1,0 +1,17 @@
+# Node
+node_modules/
+
+# Env files (never commit secrets)
+.env
+client/.env
+server/.env
+blockchain/.env
+
+# Hardhat build artifacts
+blockchain/artifacts/
+blockchain/cache/
+blockchain/coverage/
+blockchain/coverage.json
+
+# App build outputs
+client/build/
