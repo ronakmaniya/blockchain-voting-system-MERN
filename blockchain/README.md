@@ -15,14 +15,18 @@ npx hardhat ignition deploy ./ignition/modules/Lock.js
 # 1. Connect Hardhat to Ganache
 
 Inside blockchain/.env:
-    GANACHE_URL=http://127.0.0.1:7545
-    // Paste a private key from Ganache GUI (of the first account). KEEP the 0x prefix.
-    GANACHE_PRIVATE_KEY=0xYOUR_GANACHE_ACCOUNT_PRIVATE_KEY
-    GANACHE_CHAIN_ID=1337
+
+```shell
+GANACHE_URL=http://127.0.0.1:7545
+#Paste a private key from Ganache GUI (of the first account). KEEP the 0x prefix.
+GANACHE_PRIVATE_KEY=0xYOUR_GANACHE_ACCOUNT_PRIVATE_KEY
+GANACHE_CHAIN_ID=1337
+```
 
 # 2. Compile
 
 Make sure Ganache GUI is running. Then:
+
 ```shell
 cd blockchain
 npx hardhat compile
@@ -31,6 +35,7 @@ npx hardhat compile
 # 3. Deploy to Ganache
 
 Make sure Ganache GUI is running. Then:
+
 ```shell
 npx hardhat run scripts/deploy.js --network ganache
 ```
