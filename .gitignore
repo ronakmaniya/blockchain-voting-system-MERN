@@ -3,8 +3,8 @@ node_modules/
 
 # Env files (never commit secrets)
 .env
-client/.env
-server/.env
+frontend/.env
+backend/.env
 blockchain/.env
 
 # Hardhat build artifacts
