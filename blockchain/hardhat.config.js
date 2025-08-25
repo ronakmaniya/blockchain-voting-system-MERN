@@ -2,9 +2,9 @@ require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
 const {
-  GANACHE_URL = "http://127.0.0.1:7545",
-  GANACHE_PRIVATE_KEY = "",
-  GANACHE_CHAIN_ID = "1337",
+  GANACHE_URL = "http://127.0.0.1:7545", // default if it is not set in .env
+  GANACHE_PRIVATE_KEY = "", // blank if it is not set in .env
+  GANACHE_CHAIN_ID = "1337", // default if it is not set in .env
 } = process.env;
 
 /** @type import('hardhat/config').HardhatUserConfig */

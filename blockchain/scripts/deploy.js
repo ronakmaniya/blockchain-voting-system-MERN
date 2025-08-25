@@ -4,12 +4,11 @@ const fs = require("fs");
 const path = require("path");
 
 async function main() {
-  const initialCandidates = ["Alice", "Bob", "Charlie"];
-
-  const Voting = await ethers.getContractFactory("Voting");
   console.log("⏳ Deploying contract...");
 
-  const voting = await Voting.deploy(initialCandidates);
+  // Deploy contract with NO initial candidates
+  const Voting = await ethers.getContractFactory("Voting");
+  const voting = await Voting.deploy();
 
   // Wait until deployment is mined
   await voting.waitForDeployment();
@@ -19,7 +18,10 @@ async function main() {
 
   // --- 1️⃣ Save deployed address in blockchain folder ---
   const addressPath = path.join(__dirname, "../deployedAddress.json");
-  fs.writeFileSync(addressPath, JSON.stringify({ address: contractAddress }, null, 2));
+  fs.writeFileSync(
+    addressPath,
+    JSON.stringify({ address: contractAddress }, null, 2)
+  );
   console.log(`📂 Contract address saved to ${addressPath}`);
 
   // --- 2️⃣ Copy ABI to backend/abi folder ---
@@ -27,10 +29,7 @@ async function main() {
     __dirname,
     "../artifacts/contracts/Voting.sol/Voting.json"
   );
-  const abiDestPath = path.join(
-    __dirname,
-    "../../backend/abi/Voting.json"
-  );
+  const abiDestPath = path.join(__dirname, "../../backend/abi/Voting.json");
 
   // Ensure backend/abi folder exists
   const abiDestDir = path.dirname(abiDestPath);
