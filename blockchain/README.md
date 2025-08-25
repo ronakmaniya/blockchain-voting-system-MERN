@@ -33,6 +33,8 @@ Make sure Ganache GUI is running. Then:
 
 ```shell
 cd blockchain
+# (Optional but recommended) Clean old artifacts before compile
+npx hardhat clean
 npx hardhat compile
 ```
 
