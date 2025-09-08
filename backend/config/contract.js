@@ -1,29 +1,50 @@
+// backend/config/contract.js
 const path = require("path");
 const fs = require("fs");
 const { ethers } = require("ethers");
-const env = require("./env");
+const { rpcUrl } = require("./env"); // ✅ centralized config
 
-// Load deployed address from blockchain
-const deployedAddressPath = path.join(
+// ✅ centralized config to use env.js
+const RPC_URL = rpcUrl || "http://127.0.0.1:7545";
+
+const deployedPath = path.join(
   __dirname,
   "..",
   "..",
   "blockchain",
   "deployedAddress.json"
 );
-const { address: contractAddress } = JSON.parse(
-  fs.readFileSync(deployedAddressPath, "utf8")
-);
+const abiPath = path.join(__dirname, "..", "abi", "Voting.json"); // ABI file should be here
 
-// Load ABI
-const abiPath = path.join(__dirname, "..", "abi", "Voting.json");
-const contractABI = require(abiPath).abi;
+// provider
+const provider = new ethers.JsonRpcProvider(RPC_URL);
 
-// Provider & Wallet
-const provider = new ethers.JsonRpcProvider(env.rpcUrl);
-const wallet = new ethers.Wallet(env.privateKey, provider);
+// address
+let contractAddress = null;
+if (fs.existsSync(deployedPath)) {
+  const deployed = JSON.parse(fs.readFileSync(deployedPath, "utf8"));
+  contractAddress = deployed.address;
+} else {
+  console.warn(
+    "⚠️ deployedAddress.json not found — using CONTRACT_ADDRESS from env"
+  );
+  contractAddress = process.env.CONTRACT_ADDRESS || null;
+}
 
-// Contract instance
-const contract = new ethers.Contract(contractAddress, contractABI, wallet);
+// abi
+const contractABI = fs.existsSync(abiPath) ? require(abiPath).abi : null;
 
-module.exports = contract;
+// contract instance (read-only)
+let contract = null;
+if (contractAddress && contractABI) {
+  contract = new ethers.Contract(contractAddress, contractABI, provider);
+} else {
+  console.error("❌ Missing contractAddress or ABI. Contract not initialized.");
+}
+
+module.exports = {
+  provider,
+  contractAddress,
+  contractABI,
+  contract, // ✅ export read-only contract
+};
