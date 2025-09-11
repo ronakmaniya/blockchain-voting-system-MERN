@@ -9,8 +9,12 @@ let listening = false;
 function classifyTx(tx, receipt) {
   try {
     if (receipt && receipt.contractAddress) return "contract_creation";
-    const hasData = tx.data && tx.data !== "0x";
-    const valueBigInt = tx.value ? BigInt(tx.value.toString()) : 0n;
+
+    const hasData = tx && tx.data && tx.data !== "0x";
+    // tx.value may be a BigNumber or undefined
+    const valueStr = tx && tx.value != null ? tx.value.toString() : "0";
+    const valueBigInt = valueStr ? BigInt(valueStr) : 0n;
+
     if (valueBigInt > 0n && !hasData) return "value_transfer";
     if (hasData && tx.to) return "contract_call";
     return "other";
@@ -19,18 +23,36 @@ function classifyTx(tx, receipt) {
   }
 }
 
-async function processTx(tx) {
+async function processTx(txOrHash) {
   try {
-    const receipt = await provider.getTransactionReceipt(tx.hash);
+    // Accept either a transaction object or a txHash string
+    const txHash = typeof txOrHash === "string" ? txOrHash : txOrHash?.hash;
+    if (!txHash) {
+      console.warn("processTx: missing tx hash; skipping", txOrHash);
+      return;
+    }
+
+    // If we only have a hash, fetch full tx; otherwise use given tx
+    let tx =
+      typeof txOrHash === "string"
+        ? await provider.getTransaction(txHash)
+        : txOrHash;
+    if (!tx) {
+      // provider might return null for pending or pruned txs; log and skip
+      console.warn("processTx: could not fetch tx for hash", txHash);
+      return;
+    }
+
+    const receipt = await provider.getTransactionReceipt(txHash); // may be null
     const type = classifyTx(tx, receipt);
 
     const txDoc = {
-      txHash: tx.hash,
-      from: tx.from,
+      txHash,
+      from: tx.from || null,
       to: tx.to || null,
-      valueWei: tx.value?.toString?.() ?? null,
-      valueEth: tx.value ? ethers.formatEther(tx.value) : null,
-      blockNumber: tx.blockNumber,
+      valueWei: tx.value != null ? tx.value.toString() : null,
+      valueEth: tx.value != null ? ethers.formatEther(tx.value) : null,
+      blockNumber: tx.blockNumber ?? receipt?.blockNumber ?? null,
       gasUsed: receipt?.gasUsed?.toString?.() ?? null,
       gasPrice: tx.gasPrice?.toString?.() ?? null,
       status: receipt
@@ -38,7 +60,7 @@ async function processTx(tx) {
           ? "success"
           : "failed"
         : "pending",
-      data: tx.data,
+      data: tx.data ?? null,
       decodedCall: null,
       type,
     };
@@ -56,29 +78,36 @@ async function processTx(tx) {
             typeof a === "bigint" ? a.toString() : a
           ),
         };
-      } catch (_) {
+      } catch (err) {
+        // silently ignore parse errors
         txDoc.decodedCall = null;
       }
     }
 
-    // Save transaction (dedupe by unique index)
+    // Save transaction (dedupe by unique index). Use try/catch to handle duplicates.
     try {
       await Transaction.create(txDoc);
     } catch (err) {
-      if (err.code !== 11000) console.error("Error saving Transaction:", err);
+      // 11000 = duplicate key
+      if (err.code === 11000) {
+        // duplicate — optionally update the doc if status changed
+        // console.log("Duplicate tx, skipping:", txHash);
+      } else {
+        console.error("Error saving Transaction:", err);
+      }
     }
 
     // Auto-create election for certain types (value_transfer only)
     const createFor = new Set(["value_transfer"]); // change if needed
     if (createFor.has(type)) {
-      const existing = await Election.findOne({ txHash: tx.hash });
+      const existing = await Election.findOne({ txHash });
       if (!existing) {
-        const title = `Vote on transaction ${tx.hash.slice(0, 10)}...`;
+        const title = `Vote on transaction ${txHash.slice(0, 10)}...`;
         const description = `Transaction from ${tx.from} to ${
           tx.to || "contract"
         } — ${txDoc.valueEth || "0"} ETH`;
         await Election.create({
-          txHash: tx.hash,
+          txHash,
           title,
           description,
           txSummary: {
@@ -91,7 +120,7 @@ async function processTx(tx) {
           status: "open",
           startAt: new Date(),
         });
-        console.log("Election created for tx:", tx.hash);
+        console.log("Election created for tx:", txHash);
       }
     }
   } catch (err) {
@@ -102,7 +131,13 @@ async function processTx(tx) {
 async function processBlock(blockNumber) {
   try {
     const block = await provider.getBlock(blockNumber, true);
-    if (!block) return;
+    if (!block) {
+      console.warn("processBlock: block not found", blockNumber);
+      return;
+    }
+
+    // If the provider returned only hashes (strings) instead of tx objects,
+    // processTx handles hash strings and will fetch full txs itself.
     for (const tx of block.transactions) {
       processTx(tx).catch((e) => console.error("processTx unhandled:", e));
     }

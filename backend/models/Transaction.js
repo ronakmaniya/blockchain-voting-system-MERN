@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const TransactionSchema = new mongoose.Schema(
   {
-    txHash: { type: String, required: true, unique: true },
+    txHash: { type: String, required: true, unique: true }, // unique index via field
     from: { type: String, index: true },
     to: { type: String, index: true, default: null },
     valueWei: { type: String },
@@ -28,6 +28,6 @@ const TransactionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-TransactionSchema.index({ txHash: 1 }, { unique: true });
+// NOTE: removed duplicate TransactionSchema.index({ txHash: 1 }, { unique: true });
 
 module.exports = mongoose.model("Transaction", TransactionSchema);
