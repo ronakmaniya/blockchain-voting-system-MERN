@@ -54,6 +54,40 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f9f9f9;
+}
+
+.form-container {
+  max-width: 400px;
+  margin: 3rem auto;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+input,
+button {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+
+button {
+  background: #0066ff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0044aa;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

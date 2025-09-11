@@ -1,0 +1,190 @@
+/* Basic custom CSS, single file for simplicity */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f9f9f9;
+  color: #111827;
+}
+.main-container {
+  max-width: 1000px;
+  margin: 24px auto;
+  padding: 16px;
+}
+
+/* Navbar */
+.nav {
+  background: #ffffff;
+  border-bottom: 1px solid #e6e9ef;
+}
+.nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-weight: 700;
+  color: #2b6cb0;
+  text-decoration: none;
+  font-size: 18px;
+}
+.nav-right {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.nav-link {
+  color: #334155;
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.nav-link.active {
+  background: #eef2ff;
+  color: #3730a3;
+  font-weight: 600;
+}
+.user-greet {
+  font-size: 14px;
+  color: #374151;
+  margin-right: 8px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background: #2563eb;
+  color: white;
+}
+.btn-secondary {
+  background: #10b981;
+  color: white;
+}
+.btn-outline {
+  background: transparent;
+  color: #2563eb;
+  border-color: #c7d2fe;
+}
+.btn-danger {
+  background: #ef4444;
+  color: white;
+}
+.large {
+  padding: 12px 20px;
+  font-size: 16px;
+}
+
+/* Home */
+.home {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 16px;
+}
+.home-card {
+  background: white;
+  padding: 36px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  max-width: 760px;
+  text-align: center;
+}
+.home-title {
+  font-size: 28px;
+  margin-bottom: 12px;
+  color: #0f172a;
+}
+.home-desc {
+  color: #475569;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.home-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.home-tip {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 10px;
+}
+
+/* Forms */
+.form-container {
+  max-width: 420px;
+  margin: 3rem auto;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.08);
+}
+input,
+button {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+button {
+  background: #0066ff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+button:hover {
+  background: #0044aa;
+}
+
+/* Cards */
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(2, 6, 23, 0.04);
+  max-width: 640px;
+  margin: 24px auto;
+}
+.muted {
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+.placeholder {
+  color: #9ca3af;
+  padding: 18px;
+  border: 1px dashed #e6e9ef;
+  border-radius: 8px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .main-container {
+    padding: 12px;
+  }
+  .nav-inner {
+    padding: 10px;
+  }
+  .home-card {
+    padding: 20px;
+  }
+  .home-title {
+    font-size: 20px;
+  }
+}
