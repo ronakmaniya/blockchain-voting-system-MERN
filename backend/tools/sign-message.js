@@ -1,5 +1,5 @@
 // backend/tools/sign-message.js
-// Usage: node tools/sign-message.js <privateKey> <nonce>
+
 const { Wallet } = require("ethers");
 // const { verifyMessage } = require("ethers");
 

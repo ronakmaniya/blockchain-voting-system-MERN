@@ -17,6 +17,8 @@ JWT_SECRET=replace_with_a_long_random_secret
 Make sure Ganache GUI is running.
 
 ```shell
+node index.js
+# or
 npx nodemon index.js
 ```
 
@@ -50,4 +52,15 @@ B — Login flow (existing user)
 2. Sign nonce with wallet → get signature.
 3. POST /api/auth/verify with { walletAddress, signature } → returns { token }.
 4. Use token for protected endpoints until it expires.
+```
+
+# 4. Helper tool files
+
+1. backend/tools/sign-message.js
+2. backend/utils/clearDb.js
+
+```shell
+cd backend
+1. Usage: node tools/sign-message.js <privateKey> <nonce> # Returns signature
+2. Usage: node utils/clearDb.js
 ```
