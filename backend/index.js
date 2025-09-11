@@ -1,37 +1,30 @@
-// index.js (Main Entrypoint)
-
+// index.js
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
-const { port } = require("./config/env"); // ✅ centralized config
+const { port } = require("./config/env");
 
-// Import routes
 const authRoutes = require("./routes/auth");
-const adminRoutes = require("./routes/admin");
-const candidateRoutes = require("./routes/candidates");
-const resultRoutes = require("./routes/results");
-const votingRecordRoutes = require("./routes/votingRecord");
+const electionsRoutes = require("./routes/elections");
+const txRoutes = require("./routes/txs");
+
+const { startBlockListener } = require("./services/blockListener");
 
 const app = express();
-
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
 connectDB();
 
-// Routes
+// mount routes
 app.use("/api/auth", authRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/candidates", candidateRoutes);
-app.use("/api/results", resultRoutes);
-app.use("/api/votingRecords", votingRecordRoutes);
+app.use("/api/elections", electionsRoutes);
+app.use("/api", txRoutes);
 
-// Default route
-app.get("/", (req, res) => {
-  res.send("✅ Blockchain Voting System Backend is Running...");
+app.get("/", (req, res) => res.send("✅ Backend running"));
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+  // start block listener after server is listening
+  startBlockListener();
 });
-
-// Start server
-app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
