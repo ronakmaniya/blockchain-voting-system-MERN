@@ -56,11 +56,11 @@ B — Login flow (existing user)
 
 # 4. Helper tool files
 
+Developer-only tools:
+
 1. backend/tools/sign-message.js
-2. backend/utils/clearDb.js
 
 ```shell
 cd backend
 1. Usage: node tools/sign-message.js <privateKey> <nonce> # Returns signature
-2. Usage: node utils/clearDb.js
 ```
