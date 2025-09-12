@@ -1,7 +1,7 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
-import { login as apiLogin } from "../api";
-import { useNavigate, useLocation } from "react-router-dom";
+import { login as apiLogin } from "../utils/api";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 export default function Login() {
   const [walletAddress, setWalletAddress] = useState("");
@@ -44,6 +44,13 @@ export default function Login() {
         />
         <button type="submit">Login</button>
       </form>
+
+      <div style={{ marginTop: 12 }}>
+        <p>New here?</p>
+        <Link to="/signup" className="btn btn-outline">
+          Create an account (Signup)
+        </Link>
+      </div>
     </div>
   );
 }

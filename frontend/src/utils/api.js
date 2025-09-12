@@ -1,5 +1,5 @@
-// src/api.js
-const API_URL = "http://localhost:5000/api"; // change if backend on different host/port
+// src/utils/api.js
+const API_URL = "http://localhost:5000/api"; // change if backend runs elsewhere
 
 export async function signup(name, walletAddress) {
   const res = await fetch(`${API_URL}/auth/signup-request`, {
@@ -28,11 +28,10 @@ export async function verify(walletAddress, signature) {
   return res.json();
 }
 
-/* Optional: elections endpoints for later */
 export async function getElections({
   token = null,
   page = 1,
-  limit = 50,
+  limit = 100,
 } = {}) {
   const url = `${API_URL}/elections?page=${page}&limit=${limit}`;
   const headers = { "Content-Type": "application/json" };
@@ -47,4 +46,27 @@ export async function getElection(id, token = null) {
   if (token) headers["Authorization"] = `Bearer ${token}`;
   const res = await fetch(url, { headers });
   return res.json();
+}
+
+export async function postVote(electionId, score, token = null) {
+  const url = `${API_URL}/elections/${electionId}/vote`;
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ score }),
+  });
+
+  const payload = await res.json().catch(() => null);
+
+  if (!res.ok) {
+    return {
+      ok: false,
+      status: res.status,
+      error: payload || { message: "Unknown error" },
+    };
+  }
+
+  return { ok: true, data: payload };
 }

@@ -1,7 +1,7 @@
 // src/pages/Signup.jsx
 import React, { useState } from "react";
-import { signup as apiSignup } from "../api";
-import { useNavigate, useLocation } from "react-router-dom";
+import { signup as apiSignup } from "../utils/api";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -47,6 +47,13 @@ export default function Signup() {
         />
         <button type="submit">Signup</button>
       </form>
+
+      <div style={{ marginTop: 12 }}>
+        <p>Already registered?</p>
+        <Link to="/login" className="btn btn-outline">
+          Go to Login
+        </Link>
+      </div>
     </div>
   );
 }

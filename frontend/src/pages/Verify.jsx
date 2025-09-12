@@ -1,7 +1,7 @@
 // src/pages/Verify.jsx
 import React, { useState, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { verify as apiVerify } from "../api";
+import { verify as apiVerify } from "../utils/api";
 import AuthContext from "../contexts/authContext";
 import { signWithPrivateKey } from "../utils/signMessageClient";
 
@@ -11,7 +11,6 @@ export default function Verify() {
   const walletAddress = state?.walletAddress;
   const nonce = state?.nonce;
   const nameFromState = state?.name || null;
-  const from = state?.from || "/dashboard";
 
   const [privateKey, setPrivateKey] = useState("");
   const [generatedSig, setGeneratedSig] = useState("");
@@ -26,9 +25,8 @@ export default function Verify() {
   }
 
   const handleGenerateFromPK = async () => {
-    if (!privateKey) {
+    if (!privateKey)
       return alert("Paste your private key to generate signature.");
-    }
     setBusy(true);
     try {
       const sig = await signWithPrivateKey(privateKey, nonce);
@@ -56,10 +54,15 @@ export default function Verify() {
     setBusy(true);
     try {
       const res = await apiVerify(walletAddress, signature);
+
       if (res.token) {
         const returnedName = res.name || nameFromState || null;
+        // save token + wallet + name
         login(walletAddress, res.token, returnedName);
-        navigate(from, { replace: true });
+
+        // Redirect TO HOME (user asked that verify should redirect to Home,
+        // so they can click 'Go to Dashboard' themselves)
+        navigate("/", { replace: true });
       } else {
         alert(res.error || res.message || "Verification failed");
       }
@@ -105,7 +108,7 @@ export default function Verify() {
 
       <div style={{ marginBottom: 12 }}>
         <label>
-          <strong>Private key (required to generate signature)</strong>
+          <strong>Private key (to generate signature)</strong>
         </label>
         <input
           type="password"
