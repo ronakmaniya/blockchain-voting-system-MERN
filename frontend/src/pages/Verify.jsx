@@ -11,6 +11,7 @@ export default function Verify() {
   const walletAddress = state?.walletAddress;
   const nonce = state?.nonce;
   const nameFromState = state?.name || null;
+  const from = state?.from || "/dashboard";
 
   const [privateKey, setPrivateKey] = useState("");
   const [generatedSig, setGeneratedSig] = useState("");
@@ -24,7 +25,6 @@ export default function Verify() {
     return <p>Invalid flow. Please login or signup first.</p>;
   }
 
-  // Generate signature using private key (in-browser)
   const handleGenerateFromPK = async () => {
     if (!privateKey) {
       return alert("Paste your private key to generate signature.");
@@ -33,10 +33,8 @@ export default function Verify() {
     try {
       const sig = await signWithPrivateKey(privateKey, nonce);
       setGeneratedSig(sig);
-      setSignature(sig); // auto-fill into the signature field
-      // Clear private key from state immediately to reduce risk
+      setSignature(sig);
       setPrivateKey("");
-      // Small UX: focus signature input (if desired) — kept simple for now
     } catch (err) {
       console.error(err);
       alert("Failed to sign with private key: " + (err.message || err));
@@ -50,7 +48,6 @@ export default function Verify() {
     setSignature(generatedSig);
   };
 
-  // Final verify submit
   const handleVerify = async (e) => {
     e.preventDefault();
     if (!signature)
@@ -59,12 +56,10 @@ export default function Verify() {
     setBusy(true);
     try {
       const res = await apiVerify(walletAddress, signature);
-
       if (res.token) {
-        // Prefer name returned from backend; fallback to name from state (signup)
         const returnedName = res.name || nameFromState || null;
         login(walletAddress, res.token, returnedName);
-        navigate("/dashboard");
+        navigate(from, { replace: true });
       } else {
         alert(res.error || res.message || "Verification failed");
       }

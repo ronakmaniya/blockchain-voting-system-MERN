@@ -1,3 +1,4 @@
+// src/pages/Home.jsx
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../contexts/authContext";
@@ -26,14 +27,13 @@ export default function Home() {
             </>
           ) : (
             <Link to="/dashboard" className="btn btn-primary large">
-              Go to Elections
+              Go to Dashboard
             </Link>
           )}
         </div>
 
         <div className="home-tip">
-          Tip: Use your wallet address to sign in (MetaMask / Ganache for
-          testing)
+          Tip: Use test accounts (Ganache) for development.
         </div>
       </div>
     </div>
