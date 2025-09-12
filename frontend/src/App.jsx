@@ -1,3 +1,4 @@
+// src/App.jsx  (or where your Router is defined)
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";

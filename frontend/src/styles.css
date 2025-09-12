@@ -188,3 +188,59 @@ button:hover {
     font-size: 20px;
   }
 }
+
+/* modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.modal {
+  background: white;
+  width: 640px;
+  max-width: 95%;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.2);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.modal-body {
+  max-height: 60vh;
+  overflow: auto;
+}
+.modal-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+.code-box {
+  background: #f3f4f6;
+  padding: 8px;
+  border-radius: 6px;
+  margin-top: 6px;
+  word-break: break-all;
+}
+
+.election-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.code-inline {
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 13px;
+}
