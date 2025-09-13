@@ -8,6 +8,7 @@ const authRoutes = require("./routes/auth");
 const electionsRoutes = require("./routes/elections");
 const txRoutes = require("./routes/txs");
 
+const { startMonitor } = require("./services/electionMonitor");
 const { startBlockListener } = require("./services/blockListener");
 
 const app = express();
@@ -25,6 +26,7 @@ app.get("/", (req, res) => res.send("✅ Backend running"));
 
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
-  // start block listener after server is listening
+  // start background services after server is listening
+  startMonitor();
   startBlockListener();
 });

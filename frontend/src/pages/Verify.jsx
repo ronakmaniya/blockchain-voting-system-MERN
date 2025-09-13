@@ -1,4 +1,4 @@
-// src/pages/Verify.jsx
+// frontend/src/pages/Verify.jsx
 import React, { useState, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verify as apiVerify } from "../utils/api";

@@ -1,4 +1,4 @@
-// config/db.js
+// backend/config/db.js
 const mongoose = require("mongoose");
 const { mongoUri } = require("./env"); // ✅ centralized config
 

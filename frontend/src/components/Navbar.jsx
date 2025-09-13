@@ -1,4 +1,4 @@
-// src/components/Navbar.jsx
+// frontend/src/components/Navbar.jsx
 import React, { useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthContext from "../contexts/authContext";

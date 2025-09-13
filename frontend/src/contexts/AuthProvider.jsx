@@ -1,4 +1,4 @@
-// src/contexts/AuthProvider.jsx
+// frontend/src/contexts/AuthProvider.jsx
 import React, { useState, useMemo, useCallback } from "react";
 import AuthContext from "./authContext";
 

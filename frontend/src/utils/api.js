@@ -1,4 +1,4 @@
-// src/utils/api.js
+// frontend/src/utils/api.js
 const API_URL = "http://localhost:5000/api"; // change if backend runs elsewhere
 
 export async function signup(name, walletAddress) {

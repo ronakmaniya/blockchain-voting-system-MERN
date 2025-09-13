@@ -1,4 +1,4 @@
-// src/pages/Login.jsx
+// frontend/src/pages/Login.jsx
 import React, { useState } from "react";
 import { login as apiLogin } from "../utils/api";
 import { useNavigate, useLocation, Link } from "react-router-dom";

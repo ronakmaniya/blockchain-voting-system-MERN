@@ -1,4 +1,4 @@
-// src/utils/signMessageClient.js
+// frontend/src/utils/signMessageClient.js
 import { Wallet } from "ethers";
 
 /**

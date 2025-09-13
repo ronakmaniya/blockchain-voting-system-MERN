@@ -3,6 +3,7 @@ const { provider, iface } = require("../config/contract");
 const Transaction = require("../models/Transaction");
 const Election = require("../models/Election");
 const { ethers } = require("ethers");
+const env = require("../config/env");
 
 let listening = false;
 
@@ -25,25 +26,22 @@ function classifyTx(tx, receipt) {
 
 async function processTx(txOrHash) {
   try {
-    // Accept either a transaction object or a txHash string
     const txHash = typeof txOrHash === "string" ? txOrHash : txOrHash?.hash;
     if (!txHash) {
       console.warn("processTx: missing tx hash; skipping", txOrHash);
       return;
     }
 
-    // If we only have a hash, fetch full tx; otherwise use given tx
     let tx =
       typeof txOrHash === "string"
         ? await provider.getTransaction(txHash)
         : txOrHash;
     if (!tx) {
-      // provider might return null for pending or pruned txs; log and skip
       console.warn("processTx: could not fetch tx for hash", txHash);
       return;
     }
 
-    const receipt = await provider.getTransactionReceipt(txHash); // may be null
+    const receipt = await provider.getTransactionReceipt(txHash);
     const type = classifyTx(tx, receipt);
 
     const txDoc = {
@@ -79,26 +77,23 @@ async function processTx(txOrHash) {
           ),
         };
       } catch (err) {
-        // silently ignore parse errors
         txDoc.decodedCall = null;
       }
     }
 
-    // Save transaction (dedupe by unique index). Use try/catch to handle duplicates.
+    // Save transaction (dedupe)
     try {
       await Transaction.create(txDoc);
     } catch (err) {
-      // 11000 = duplicate key
       if (err.code === 11000) {
-        // duplicate — optionally update the doc if status changed
-        // console.log("Duplicate tx, skipping:", txHash);
+        // duplicate — optionally update status if changed (not mandatory)
       } else {
         console.error("Error saving Transaction:", err);
       }
     }
 
     // Auto-create election for certain types (value_transfer only)
-    const createFor = new Set(["value_transfer"]); // change if needed
+    const createFor = new Set(["value_transfer"]);
     if (createFor.has(type)) {
       const existing = await Election.findOne({ txHash });
       if (!existing) {
@@ -106,6 +101,12 @@ async function processTx(txOrHash) {
         const description = `Transaction from ${tx.from} to ${
           tx.to || "contract"
         } — ${txDoc.valueEth || "0"} ETH`;
+
+        // Determine duration and endAt
+        const durationMinutes = Number(env.electionDurationMinutes) || 60;
+        const startAt = new Date();
+        const endAt = new Date(startAt.getTime() + durationMinutes * 60 * 1000);
+
         await Election.create({
           txHash,
           title,
@@ -118,9 +119,15 @@ async function processTx(txOrHash) {
             type,
           },
           status: "open",
-          startAt: new Date(),
+          startAt,
+          endAt,
+          durationMinutes,
         });
-        console.log("Election created for tx:", txHash);
+        console.log(
+          "Election created for tx:",
+          txHash,
+          `endAt=${endAt.toISOString()}`
+        );
       }
     }
   } catch (err) {

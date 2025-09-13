@@ -1,4 +1,4 @@
-// src/pages/Dashboard.jsx
+// frontend/src/pages/Dashboard.jsx
 import React, { useContext, useEffect, useState } from "react";
 import { getElections, getElection, postVote } from "../utils/api";
 import AuthContext from "../contexts/authContext";

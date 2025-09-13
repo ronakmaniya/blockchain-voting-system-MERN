@@ -1,4 +1,4 @@
-// src/pages/ElectionDetail.jsx
+// frontend/src/pages/ElectionDetail.jsx
 import React, { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getElection } from "../utils/api";
@@ -137,7 +137,6 @@ export default function ElectionDetail() {
         </div>
 
         <div style={{ marginTop: 12 }}>
-          {/* No voting here - instruct user to use Dashboard to vote */}
           {!hasVoted ? (
             <p style={{ color: "#6b7280" }}>
               To vote on this transaction, go to the <strong>Dashboard</strong>{" "}
@@ -150,7 +149,6 @@ export default function ElectionDetail() {
           )}
         </div>
 
-        {/* Show votes only after user has voted */}
         {hasVoted && (
           <div style={{ marginTop: 16 }}>
             <h4>All Votes</h4>

@@ -17,7 +17,15 @@ router.get("/", async (req, res) => {
       .skip(skip)
       .limit(limit)
       .lean();
-    res.json({ page, limit, results: list });
+
+    const now = new Date();
+    const withStatus = list.map((el) => {
+      const computedStatus =
+        el.endAt && new Date(el.endAt) <= now ? "closed" : el.status || "open";
+      return { ...el, status: computedStatus };
+    });
+
+    res.json({ page, limit, results: withStatus });
   } catch (err) {
     console.error("GET /elections error:", err);
     res.status(500).json({ error: "Server error" });
@@ -34,6 +42,14 @@ router.get("/:id", async (req, res) => {
       "voter",
       "name walletAddress"
     );
+
+    const now = new Date();
+    const computedStatus =
+      election.endAt && new Date(election.endAt) <= now
+        ? "closed"
+        : election.status || "open";
+    election.status = computedStatus;
+
     res.json({
       election,
       votes,
