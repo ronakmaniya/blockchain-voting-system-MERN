@@ -168,7 +168,7 @@ function startBlockListener() {
     }
   });
 
-  console.log("Block listener started");
+  console.log("✅ Block listener started");
 }
 
 module.exports = { startBlockListener };

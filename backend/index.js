@@ -24,7 +24,7 @@ app.use("/api", txRoutes);
 app.get("/", (req, res) => res.send("✅ Backend running"));
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`✅ Server running on port ${port}`);
   // start block listener after server is listening
   startBlockListener();
 });
