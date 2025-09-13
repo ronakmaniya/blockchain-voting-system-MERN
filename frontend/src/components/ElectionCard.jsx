@@ -5,20 +5,13 @@ import { Link } from "react-router-dom";
 
 function StatusBadge({ status }) {
   const s = status?.toLowerCase?.() || "unknown";
-  const style = {
-    display: "inline-block",
-    padding: "4px 8px",
-    borderRadius: 12,
-    fontSize: 12,
-    fontWeight: 700,
-    color: "#fff",
-  };
+
   if (s === "open") {
-    return <span style={{ ...style, background: "#16a34a" }}>OPEN</span>;
+    return <span className="election-status active">🟢 Active</span>;
   } else if (s === "closed") {
-    return <span style={{ ...style, background: "#dc2626" }}>CLOSED</span>;
+    return <span className="election-status closed">🔴 Closed</span>;
   } else {
-    return <span style={{ ...style, background: "#6b7280" }}>UNKNOWN</span>;
+    return <span className="election-status pending">🟡 Pending</span>;
   }
 }
 
@@ -43,93 +36,156 @@ export default function ElectionCard({ election, userInfo = {}, onVote }) {
   }
 
   return (
-    <div
-      className="card election-card"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        padding: 16,
-      }}
-    >
-      <div style={{ flex: 1 }}>
-        <div style={{ fontWeight: 700 }}>
+    <div className="election-card">
+      <div className="election-card-header">
+        <h3 className="election-card-title">
           {election.title ||
             `Election for ${election.txHash?.slice(0, 10) ?? election._id}`}
-        </div>
-
-        <div style={{ color: "#6b7280", marginTop: 6 }}>
-          Tx: <span className="code-inline">{election.txHash}</span>
-        </div>
-
-        <div style={{ marginTop: 8, color: "#374151", fontSize: 13 }}>
-          Created: {new Date(election.createdAt).toLocaleString()} •{" "}
+        </h3>
+        <p className="election-card-description">
+          Transaction: <span className="code-inline">{election.txHash}</span>
+        </p>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: "var(--space-3)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2)",
+            }}
+          >
+            <span className="muted">
+              📅 Created: {new Date(election.createdAt).toLocaleString()}
+            </span>
+            {/* Show analytics indicator */}
+            {(election.status?.toLowerCase() === "closed" || hasVoted) && (
+              <span className="analytics-indicator" title="Analytics available">
+                📊
+              </span>
+            )}
+          </div>
           <StatusBadge status={election.status} />
-        </div>
-
-        <div style={{ marginTop: 8 }}>
-          {hasVoted ? (
-            <div style={{ marginTop: 8, color: "#065f46" }}>
-              You voted — score: <strong>{userInfo.score}</strong>
-              {typeof election.averageScore !== "undefined" && (
-                <span style={{ marginLeft: 12 }}>
-                  Average: {Number(election.averageScore).toFixed(2)}
-                </span>
-              )}
-              {typeof election.totalVotes !== "undefined" && (
-                <span style={{ marginLeft: 12 }}>
-                  Votes: {election.totalVotes}
-                </span>
-              )}
-            </div>
-          ) : isOpen ? (
-            <div style={{ marginTop: 8, color: "#6b7280" }}>
-              {election.totalVotes
-                ? `Votes: ${election.totalVotes}`
-                : "No votes yet"}
-            </div>
-          ) : (
-            // closed & user not voted
-            <div style={{ marginTop: 8, color: "#b91c1c" }}>
-              Election closed — you did not vote.
-              {typeof election.totalVotes !== "undefined" && (
-                <span style={{ marginLeft: 12 }}>
-                  Votes: {election.totalVotes}
-                </span>
-              )}
-            </div>
-          )}
         </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {/* If user hasn't voted and election is open -> Vote */}
-        {!hasVoted && isOpen ? (
-          <button
-            className="btn btn-primary"
-            onClick={() => setOpen(true)}
-            disabled={busy}
-          >
-            {busy ? "Please wait..." : "Vote"}
-          </button>
-        ) : (
-          // Otherwise provide View (detail), clickable in all other cases
-          <Link to={`/elections/${election._id}`} className="btn btn-outline">
-            View
-          </Link>
-        )}
+      <div className="election-card-body">
+        <div className="election-stats">
+          <div className="stat-item">
+            <span className="stat-value">{election.totalVotes || 0}</span>
+            <span className="stat-label">Total Votes</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-value">
+              {hasVoted ? userInfo.score : "—"}
+            </span>
+            <span className="stat-label">Your Vote</span>
+          </div>
+          {/* Show analytics if: election is closed OR user has voted */}
+          {(election.status?.toLowerCase() === "closed" || hasVoted) && (
+            <div className="stat-item analytics-item">
+              <span className="stat-value">
+                {typeof election.averageScore !== "undefined"
+                  ? Number(election.averageScore).toFixed(2)
+                  : "—"}
+              </span>
+              <span className="stat-label">Average Score</span>
+            </div>
+          )}
+        </div>
 
-        <button
-          className="btn"
-          onClick={() => {
-            navigator.clipboard
-              ?.writeText(election.txHash)
-              .then(() => alert("TxHash copied"));
-          }}
-          disabled={busy}
-        >
-          Copy TxHash
-        </button>
+        {hasVoted ? (
+          <div
+            style={{
+              padding: "var(--space-4)",
+              background: "var(--success-50)",
+              borderRadius: "var(--radius-lg)",
+              border: "1px solid var(--success-200)",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ color: "var(--success-700)", fontWeight: "600" }}>
+              ✅ You voted with score: <strong>{userInfo.score}</strong>
+            </div>
+          </div>
+        ) : isOpen ? (
+          <div
+            style={{
+              padding: "var(--space-4)",
+              background: "var(--warning-50)",
+              borderRadius: "var(--radius-lg)",
+              border: "1px solid var(--warning-200)",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ color: "var(--warning-700)", fontWeight: "600" }}>
+              ⏰{" "}
+              {election.totalVotes
+                ? `${election.totalVotes} votes cast`
+                : "No votes yet"}{" "}
+              • Cast your vote now!
+            </div>
+          </div>
+        ) : (
+          <div
+            style={{
+              padding: "var(--space-4)",
+              background: "var(--error-50)",
+              borderRadius: "var(--radius-lg)",
+              border: "1px solid var(--error-200)",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ color: "var(--error-700)", fontWeight: "600" }}>
+              ❌ Election closed • You did not vote
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="election-card-footer">
+        <div style={{ display: "flex", gap: "var(--space-2)" }}>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => {
+              navigator.clipboard
+                ?.writeText(election.txHash)
+                .then(() => alert("Transaction hash copied to clipboard!"));
+            }}
+            disabled={busy}
+            title="Copy transaction hash"
+          >
+            📋 Copy Hash
+          </button>
+        </div>
+
+        <div style={{ display: "flex", gap: "var(--space-2)" }}>
+          {!hasVoted && isOpen ? (
+            <button
+              className="btn btn-primary"
+              onClick={() => setOpen(true)}
+              disabled={busy}
+            >
+              {busy ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  Please wait...
+                </>
+              ) : (
+                "🗳️ Vote Now"
+              )}
+            </button>
+          ) : (
+            <Link to={`/elections/${election._id}`} className="btn btn-outline">
+              👁️ View Details
+            </Link>
+          )}
+        </div>
       </div>
 
       <VoteModal

@@ -16,18 +16,47 @@ export default function Verify() {
   const [generatedSig, setGeneratedSig] = useState("");
   const [signature, setSignature] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
   if (!walletAddress || !nonce) {
-    return <p>Invalid flow. Please login or signup first.</p>;
+    return (
+      <div className="form-container">
+        <div style={{ textAlign: "center", padding: "var(--space-8)" }}>
+          <div
+            style={{
+              color: "var(--error-600)",
+              fontSize: "3rem",
+              marginBottom: "var(--space-4)",
+            }}
+          >
+            ⚠️
+          </div>
+          <h2
+            style={{
+              color: "var(--error-600)",
+              marginBottom: "var(--space-2)",
+            }}
+          >
+            Invalid Flow
+          </h2>
+          <p style={{ color: "var(--gray-600)" }}>
+            Please login or signup first.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const handleGenerateFromPK = async () => {
-    if (!privateKey)
-      return alert("Paste your private key to generate signature.");
+    if (!privateKey) {
+      setError("Paste your private key to generate signature.");
+      return;
+    }
     setBusy(true);
+    setError("");
     try {
       const sig = await signWithPrivateKey(privateKey, nonce);
       setGeneratedSig(sig);
@@ -35,23 +64,30 @@ export default function Verify() {
       setPrivateKey("");
     } catch (err) {
       console.error(err);
-      alert("Failed to sign with private key: " + (err.message || err));
+      setError("Failed to sign with private key: " + (err.message || err));
     } finally {
       setBusy(false);
     }
   };
 
   const handleUseGenerated = () => {
-    if (!generatedSig) return alert("No generated signature");
+    if (!generatedSig) {
+      setError("No generated signature");
+      return;
+    }
     setSignature(generatedSig);
+    setError("");
   };
 
   const handleVerify = async (e) => {
     e.preventDefault();
-    if (!signature)
-      return alert("Please provide a signature (generate or paste).");
+    if (!signature) {
+      setError("Please provide a signature (generate or paste).");
+      return;
+    }
 
     setBusy(true);
+    setError("");
     try {
       const res = await apiVerify(walletAddress, signature);
 
@@ -64,11 +100,11 @@ export default function Verify() {
         // so they can click 'Go to Dashboard' themselves)
         navigate("/", { replace: true });
       } else {
-        alert(res.error || res.message || "Verification failed");
+        setError(res.error || res.message || "Verification failed");
       }
     } catch (err) {
       console.error("Verify error:", err);
-      alert("Network error during verify");
+      setError("Network error during verify");
     } finally {
       setBusy(false);
     }
@@ -76,105 +112,155 @@ export default function Verify() {
 
   return (
     <div className="form-container">
-      <h2>Verify Wallet</h2>
-
-      <div style={{ marginBottom: 12 }}>
-        <strong>Address:</strong> {walletAddress}
-      </div>
-
-      <div style={{ marginBottom: 12 }}>
-        <strong>Nonce:</strong>
-        <div
-          style={{
-            wordBreak: "break-all",
-            background: "#f3f4f6",
-            padding: 8,
-            borderRadius: 6,
-            marginTop: 6,
-          }}
-        >
-          {nonce}
+      <div style={{ textAlign: "center", marginBottom: "var(--space-6)" }}>
+        <div style={{ fontSize: "3rem", marginBottom: "var(--space-4)" }}>
+          🔐
         </div>
-      </div>
-
-      <div style={{ marginBottom: 12 }}>
-        <p style={{ color: "#b91c1c", fontSize: 13 }}>
-          Security note: never send private keys to the backend. If you paste
-          your private key here it will be used only in your browser to sign the
-          nonce and will be cleared from the input immediately after signing.
-          Use test accounts (Ganache) for development.
+        <h2 className="form-title">Verify Your Wallet</h2>
+        <p className="form-subtitle">
+          Complete the verification process to access your account
         </p>
       </div>
 
-      <div style={{ marginBottom: 12 }}>
-        <label>
-          <strong>Private key (to generate signature)</strong>
+      <div
+        style={{
+          padding: "var(--space-4)",
+          background: "var(--gray-50)",
+          borderRadius: "var(--radius-lg)",
+          border: "1px solid var(--gray-200)",
+          marginBottom: "var(--space-6)",
+        }}
+      >
+        <div style={{ marginBottom: "var(--space-3)" }}>
+          <strong style={{ color: "var(--gray-700)" }}>Wallet Address:</strong>
+          <div className="code-box" style={{ marginTop: "var(--space-1)" }}>
+            {walletAddress}
+          </div>
+        </div>
+
+        <div>
+          <strong style={{ color: "var(--gray-700)" }}>Nonce to Sign:</strong>
+          <div className="code-box" style={{ marginTop: "var(--space-1)" }}>
+            {nonce}
+          </div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          padding: "var(--space-4)",
+          background: "var(--warning-50)",
+          borderRadius: "var(--radius-lg)",
+          border: "1px solid var(--warning-200)",
+          marginBottom: "var(--space-6)",
+        }}
+      >
+        <p
+          style={{
+            color: "var(--warning-700)",
+            margin: 0,
+            fontSize: "0.875rem",
+            lineHeight: 1.5,
+          }}
+        >
+          <strong>🔒 Security Note:</strong> Your private key is processed only
+          in your browser and never sent to our servers. It will be cleared
+          immediately after signing. Use test accounts (Ganache) for
+          development.
+        </p>
+      </div>
+
+      {error && <div className="form-error">⚠️ {error}</div>}
+
+      <div className="form-group">
+        <label className="form-label" htmlFor="privateKey">
+          Private Key (to generate signature)
         </label>
         <input
+          id="privateKey"
           type="password"
+          className="form-input"
           placeholder="Paste 0x... private key here (will be cleared after signing)"
           value={privateKey}
           onChange={(e) => setPrivateKey(e.target.value)}
-          style={{ width: "100%", padding: 8, marginTop: 6 }}
+          disabled={busy}
         />
         <button
           type="button"
+          className={`btn btn-outline ${busy ? "btn-loading" : ""}`}
           onClick={handleGenerateFromPK}
-          disabled={busy}
-          style={{ marginTop: 8 }}
+          disabled={busy || !privateKey}
+          style={{ marginTop: "var(--space-2)" }}
         >
-          {busy ? "Signing..." : "Generate signature (from private key)"}
+          {busy ? "Signing..." : "🔑 Generate Signature"}
         </button>
       </div>
 
-      <hr style={{ margin: "16px 0" }} />
-
-      <div style={{ marginBottom: 8 }}>
-        <label>
-          <strong>Generated signature</strong>
-        </label>
-        <textarea
-          rows={3}
-          readOnly
-          value={generatedSig}
-          style={{ width: "100%", padding: 8, marginTop: 6 }}
-        />
-        <div style={{ marginTop: 6 }}>
-          <button type="button" onClick={handleUseGenerated}>
-            Use generated signature
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (!generatedSig) return alert("No signature to copy");
-              navigator.clipboard
-                ?.writeText(generatedSig)
-                .then(() => alert("Signature copied to clipboard"));
+      {generatedSig && (
+        <div className="form-group">
+          <label className="form-label">Generated Signature</label>
+          <textarea
+            rows={3}
+            className="form-input"
+            readOnly
+            value={generatedSig}
+            style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem" }}
+          />
+          <div
+            style={{
+              display: "flex",
+              gap: "var(--space-2)",
+              marginTop: "var(--space-2)",
             }}
-            style={{ marginLeft: 8 }}
           >
-            Copy signature
-          </button>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={handleUseGenerated}
+            >
+              ✅ Use This Signature
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => {
+                if (!generatedSig) return alert("No signature to copy");
+                navigator.clipboard
+                  ?.writeText(generatedSig)
+                  .then(() => alert("Signature copied to clipboard!"));
+              }}
+            >
+              📋 Copy
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       <form onSubmit={handleVerify}>
-        <div style={{ marginBottom: 8 }}>
-          <label>
-            <strong>Or paste signature here</strong>
+        <div className="form-group">
+          <label className="form-label" htmlFor="signature">
+            Or paste signature here
           </label>
           <input
+            id="signature"
             type="text"
+            className="form-input"
             placeholder="Paste your signature here"
             value={signature}
             onChange={(e) => setSignature(e.target.value)}
-            style={{ width: "100%", padding: 8, marginTop: 6 }}
             required
+            disabled={busy}
+            style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem" }}
           />
         </div>
 
-        <button type="submit" disabled={busy}>
-          {busy ? "Verifying..." : "Verify"}
+        <button
+          type="submit"
+          className={`btn btn-primary btn-lg ${busy ? "btn-loading" : ""}`}
+          disabled={busy || !signature}
+          style={{ width: "100%" }}
+        >
+          {busy ? "Verifying..." : "✅ Complete Verification"}
         </button>
       </form>
     </div>

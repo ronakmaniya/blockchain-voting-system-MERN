@@ -9,31 +9,40 @@ export default function Home() {
   return (
     <div className="home">
       <div className="home-card">
-        <h1 className="home-title">Welcome to the Blockchain Voting System</h1>
+        <h1 className="home-title">🗳️ Blockchain Voting System</h1>
         <p className="home-desc">
-          Track blockchain transactions and let the network vote on their
-          validity — secure, auditable, and user-driven.
+          Experience the future of democratic decision-making with our secure,
+          transparent, and auditable blockchain-based voting platform. Cast your
+          votes on blockchain transactions and participate in decentralized
+          governance.
         </p>
 
         <div className="home-actions">
           {!isAuthenticated ? (
             <>
-              <Link to="/login" className="btn btn-primary large">
-                Login
+              <Link to="/login" className="btn btn-primary btn-lg">
+                🔐 Login
               </Link>
-              <Link to="/signup" className="btn btn-secondary large">
-                Signup
+              <Link to="/signup" className="btn btn-secondary btn-lg">
+                ✨ Sign Up
               </Link>
             </>
           ) : (
-            <Link to="/dashboard" className="btn btn-primary large">
-              Go to Dashboard
+            <Link to="/dashboard" className="btn btn-primary btn-xl">
+              📊 Go to Dashboard
             </Link>
           )}
         </div>
 
         <div className="home-tip">
-          Tip: Use test accounts (Ganache) for development.
+          💡 <strong>Getting Started:</strong> Use test accounts (Ganache) for
+          development and testing.
+        </div>
+
+        <div style={{ marginTop: "var(--space-6)" }}>
+          <Link to="/about" className="btn btn-ghost">
+            ℹ️ Learn More About This Project
+          </Link>
         </div>
       </div>
     </div>

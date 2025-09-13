@@ -14,6 +14,12 @@ export default function Dashboard() {
   const [userVoteMap, setUserVoteMap] = useState({}); // electionId -> { hasVoted, score }
   const [error, setError] = useState(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElections, setTotalElections] = useState(0);
+  const [itemsPerPage] = useState(20);
+
   useEffect(() => {
     let mounted = true;
 
@@ -21,7 +27,11 @@ export default function Dashboard() {
       setLoading(true);
       setError(null);
       try {
-        const data = await getElections({ token, page: 1, limit: 25 });
+        const data = await getElections({
+          token,
+          page: currentPage,
+          limit: itemsPerPage,
+        });
         const list = Array.isArray(data.results)
           ? data.results
           : Array.isArray(data)
@@ -30,6 +40,15 @@ export default function Dashboard() {
         list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         if (!mounted) return;
         setElections(list);
+
+        // Update pagination info
+        if (data.total !== undefined) {
+          setTotalElections(data.total);
+          setTotalPages(Math.ceil(data.total / itemsPerPage));
+        } else {
+          setTotalElections(list.length);
+          setTotalPages(1);
+        }
 
         if (token && walletAddress && list.length > 0) {
           const details = await Promise.all(
@@ -80,7 +99,7 @@ export default function Dashboard() {
     return () => {
       mounted = false;
     };
-  }, [token, walletAddress]);
+  }, [token, walletAddress, currentPage, itemsPerPage]);
 
   const refreshElectionDetail = async (electionId) => {
     try {
@@ -200,29 +219,166 @@ export default function Dashboard() {
     }
   };
 
+  // Pagination functions
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pages = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    // Previous button
+    pages.push(
+      <button
+        key="prev"
+        className="pagination-btn pagination-nav"
+        onClick={() => handlePageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        title="Previous page"
+      >
+        ← Previous
+      </button>
+    );
+
+    // Add separator if there are page numbers
+    if (startPage <= endPage) {
+      pages.push(<div key="separator1" className="pagination-separator" />);
+    }
+
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          className={`pagination-btn ${currentPage === i ? "active" : ""}`}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Add separator before next button
+    if (startPage <= endPage) {
+      pages.push(<div key="separator2" className="pagination-separator" />);
+    }
+
+    // Next button
+    pages.push(
+      <button
+        key="next"
+        className="pagination-btn pagination-nav"
+        onClick={() => handlePageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        title="Next page"
+      >
+        Next →
+      </button>
+    );
+
+    return pages;
+  };
+
   if (loading)
     return (
       <div className="card">
-        <p>Loading elections...</p>
+        <div style={{ textAlign: "center", padding: "var(--space-8)" }}>
+          <div
+            className="loading-spinner"
+            style={{ marginBottom: "var(--space-4)" }}
+          ></div>
+          <p>Loading elections...</p>
+        </div>
       </div>
     );
+
   if (error)
     return (
       <div className="card">
-        <p style={{ color: "red" }}>{error}</p>
+        <div style={{ textAlign: "center", padding: "var(--space-8)" }}>
+          <div
+            style={{
+              color: "var(--error-600)",
+              fontSize: "3rem",
+              marginBottom: "var(--space-4)",
+            }}
+          >
+            ⚠️
+          </div>
+          <p style={{ color: "var(--error-600)", fontSize: "1.125rem" }}>
+            {error}
+          </p>
+        </div>
       </div>
     );
+
   if (!elections.length)
     return (
       <div className="card">
-        <h2>No elections yet</h2>
+        <div style={{ textAlign: "center", padding: "var(--space-8)" }}>
+          <div style={{ fontSize: "3rem", marginBottom: "var(--space-4)" }}>
+            🗳️
+          </div>
+          <h2 style={{ marginBottom: "var(--space-2)" }}>No elections yet</h2>
+          <p style={{ color: "var(--gray-600)" }}>
+            Check back later for new voting opportunities!
+          </p>
+        </div>
       </div>
     );
 
   return (
     <div>
-      <h2 style={{ marginBottom: 12 }}>Elections</h2>
-      <div style={{ display: "grid", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "var(--space-6)",
+          flexWrap: "wrap",
+          gap: "var(--space-4)",
+        }}
+      >
+        <div>
+          <h1
+            style={{
+              fontSize: "2rem",
+              fontWeight: "800",
+              color: "var(--gray-900)",
+              margin: 0,
+              background:
+                "linear-gradient(135deg, var(--primary-600), var(--primary-800))",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            📊 Elections Dashboard
+          </h1>
+          <p
+            style={{
+              color: "var(--gray-600)",
+              margin: "var(--space-2) 0 0 0",
+              fontSize: "1rem",
+            }}
+          >
+            {totalElections} total election{totalElections !== 1 ? "s" : ""} •
+            Page {currentPage} of {totalPages}
+          </p>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gap: "var(--space-6)" }}>
         {elections.map((el) => (
           <ElectionCard
             key={el._id}
@@ -232,6 +388,17 @@ export default function Dashboard() {
           />
         ))}
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          {renderPagination()}
+          <div className="pagination-info">
+            Showing {(currentPage - 1) * itemsPerPage + 1}-
+            {Math.min(currentPage * itemsPerPage, totalElections)} of{" "}
+            {totalElections}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

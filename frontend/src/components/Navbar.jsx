@@ -19,7 +19,8 @@ export default function Navbar() {
     <nav className="nav">
       <div className="nav-inner">
         <Link to="/" className="brand">
-          Blockchain Voting
+          <div className="brand-icon">🗳️</div>
+          <span>Blockchain Voting</span>
         </Link>
 
         <div className="nav-right">
@@ -27,7 +28,16 @@ export default function Navbar() {
             to="/"
             className={loc.pathname === "/" ? "nav-link active" : "nav-link"}
           >
-            Home
+            🏠 Home
+          </Link>
+
+          <Link
+            to="/about"
+            className={
+              loc.pathname === "/about" ? "nav-link active" : "nav-link"
+            }
+          >
+            ℹ️ About
           </Link>
 
           {/* Dashboard only visible when authenticated */}
@@ -38,18 +48,24 @@ export default function Navbar() {
                 loc.pathname === "/dashboard" ? "nav-link active" : "nav-link"
               }
             >
-              Dashboard
+              📊 Dashboard
             </Link>
           )}
 
           {/* Right side: when authenticated show greeting + logout; otherwise nothing */}
           {isAuthenticated ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-3)",
+              }}
+            >
               <span className="user-greet">
-                Hi{user?.name ? `, ${user.name}` : ""}
+                👋 Hi{user?.name ? `, ${user.name}` : ""}
               </span>
-              <button onClick={handleLogout} className="btn btn-danger">
-                Logout
+              <button onClick={handleLogout} className="btn btn-danger btn-sm">
+                🚪 Logout
               </button>
             </div>
           ) : null}
