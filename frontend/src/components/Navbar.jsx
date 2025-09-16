@@ -19,8 +19,14 @@ export default function Navbar() {
     <nav className="nav">
       <div className="nav-inner">
         <Link to="/" className="brand">
-          <div className="brand-icon">🗳️</div>
-          <span>Blockchain Voting</span>
+          <div className="brand-icon">
+            <img
+              src="/favicon.png"
+              alt="Logo"
+              style={{ width: 24, height: 24 }}
+            />
+          </div>
+          <span>Open Block</span>
         </Link>
 
         <div className="nav-right">
