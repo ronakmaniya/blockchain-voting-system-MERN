@@ -10,13 +10,16 @@ const auth = require("../middleware/auth");
 router.get("/", async (req, res) => {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
-    const limit = Math.min(100, Number(req.query.limit) || 20);
+    const defaultLimit = Math.max(
+      1,
+      Math.min(100, Number(process.env.PAGE_LIMIT) || 25)
+    );
+    const limit = Math.min(100, Number(req.query.limit) || defaultLimit);
     const skip = (page - 1) * limit;
-    const list = await Election.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    const [total, list] = await Promise.all([
+      Election.countDocuments(),
+      Election.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    ]);
 
     const now = new Date();
     const withStatus = list.map((el) => {
@@ -25,7 +28,7 @@ router.get("/", async (req, res) => {
       return { ...el, status: computedStatus };
     });
 
-    res.json({ page, limit, results: withStatus });
+    res.json({ page, limit, total, results: withStatus });
   } catch (err) {
     console.error("GET /elections error:", err);
     res.status(500).json({ error: "Server error" });

@@ -1,5 +1,7 @@
 // frontend/src/utils/api.js
-const API_URL = "http://localhost:5000/api"; // change if backend runs elsewhere
+const API_URL =
+  (import.meta.env && import.meta.env.VITE_API_URL) ||
+  "http://localhost:5000/api"; // change if backend runs elsewhere
 
 export async function signup(name, walletAddress) {
   const res = await fetch(`${API_URL}/auth/signup-request`, {
@@ -31,7 +33,7 @@ export async function verify(walletAddress, signature) {
 export async function getElections({
   token = null,
   page = 1,
-  limit = 100,
+  limit = (import.meta.env && Number(import.meta.env.VITE_PAGE_LIMIT)) || 25,
 } = {}) {
   const url = `${API_URL}/elections?page=${page}&limit=${limit}`;
   const headers = { "Content-Type": "application/json" };

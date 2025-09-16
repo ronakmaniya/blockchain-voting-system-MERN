@@ -18,7 +18,9 @@ export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElections, setTotalElections] = useState(0);
-  const [itemsPerPage] = useState(20);
+  const [itemsPerPage] = useState(
+    (import.meta.env && Number(import.meta.env.VITE_PAGE_LIMIT)) || 25
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -237,52 +239,83 @@ export default function Dashboard() {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
 
-    // Previous button
+    const addPageButton = (i) => (
+      <button
+        key={i}
+        className={`pagination-btn ${currentPage === i ? "active" : ""}`}
+        onClick={() => handlePageChange(i)}
+      >
+        {i}
+      </button>
+    );
+
+    // First
+    pages.push(
+      <button
+        key="first"
+        className="pagination-btn pagination-nav"
+        onClick={() => handlePageChange(1)}
+        disabled={currentPage === 1}
+        title="First page"
+      >
+        « First
+      </button>
+    );
+
+    // Previous
     pages.push(
       <button
         key="prev"
         className="pagination-btn pagination-nav"
-        onClick={() => handlePageChange(currentPage - 1)}
+        onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
         title="Previous page"
       >
-        ← Previous
+        ← Prev
       </button>
     );
 
-    // Add separator if there are page numbers
-    if (startPage <= endPage) {
-      pages.push(<div key="separator1" className="pagination-separator" />);
+    // Left ellipsis
+    if (startPage > 1) {
+      pages.push(addPageButton(1));
+      if (startPage > 2) pages.push(<span key="left-ellipsis">…</span>);
     }
 
-    // Page numbers
+    // Page numbers window
     for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          className={`pagination-btn ${currentPage === i ? "active" : ""}`}
-          onClick={() => handlePageChange(i)}
-        >
-          {i}
-        </button>
-      );
+      pages.push(addPageButton(i));
     }
 
-    // Add separator before next button
-    if (startPage <= endPage) {
-      pages.push(<div key="separator2" className="pagination-separator" />);
+    // Right ellipsis
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1)
+        pages.push(<span key="right-ellipsis">…</span>);
+      pages.push(addPageButton(totalPages));
     }
 
-    // Next button
+    // Next
     pages.push(
       <button
         key="next"
         className="pagination-btn pagination-nav"
-        onClick={() => handlePageChange(currentPage + 1)}
+        onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
         title="Next page"
       >
         Next →
+      </button>
+    );
+
+    // Last
+    pages.push(
+      <button
+        key="last"
+        className="pagination-btn pagination-nav"
+        onClick={() => handlePageChange(totalPages)}
+        disabled={currentPage === totalPages}
+        title="Last page"
+      >
+        Last »
       </button>
     );
 

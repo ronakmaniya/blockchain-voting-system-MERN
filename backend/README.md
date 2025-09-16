@@ -1,4 +1,4 @@
-## 1. Set Db url, port number and JWT secret
+## 1. Set Db url, port number, JWT secret and other...
 
 Inside backend/.env
 
@@ -14,6 +14,8 @@ JWT_SECRET=replace_with_a_long_random_secret
 ELECTION_DURATION_MINUTES=set_your_election_duration
 
 ELECTION_MONITOR_INTERVAL_SECONDS=set_your_election_monitor_interval
+
+PAGE_LIMIT=set_page_limit_of_your_choice
 ```
 
 (See backend/config/env.js with compare to backend/.env)
@@ -33,7 +35,6 @@ ELECTION_MONITOR_INTERVAL_SECONDS=set_your_election_monitor_interval
    npx nodemon index.js
    ```
 3. The server will start at: http://localhost:5000
-
 
 ## 3. Authentication
 
